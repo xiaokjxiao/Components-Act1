@@ -1,8 +1,12 @@
 {
   "dependencies": {
-    "@prisma/client": "^6.4.1"
+    "@prisma/client": "^6.4.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2"
   },
   "devDependencies": {
+    "@types/cors": "^2.8.17",
     "@types/node": "^22.13.8",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.2"
@@ -11,10 +15,18 @@
     "seed": "ts-node backend/prisma/seed.ts"
   },
   "scripts": {
+    "start": "ts-node src/server.ts",
+    "dev": "ts-node src/server.ts",
     "seed": "ts-node backend/prisma/seed.ts",
-    "dev": "next dev",
     "build": "next build",
-    "start": "next start",
     "ts-node": "ts-node --compiler-options '{\"module\":\"CommonJS\"}'"
+  },
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es6",
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "strict": true,
+    "type": "commonjs"
   }
 }
