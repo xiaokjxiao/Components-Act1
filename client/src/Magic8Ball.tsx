@@ -3,7 +3,7 @@ import ButtonComp from "./Components/Button";
 import InputField from "./Components/Input";
 import giphy from "./assets/giphy.gif";
 
-const API_URL = "http://localhost:5000/api/magic8ball"; 
+const API_URL = "http://localhost:5000"; 
 
 const Magic8Ball = () => {
   const [possibleResponses, setPossibleResponses] = useState<string[]>([]);
@@ -14,7 +14,7 @@ const Magic8Ball = () => {
   useEffect(() => {
     const fetchResponses = async () => {
       try {
-        const res = await fetch(API_URL);
+        const res = await fetch(`${API_URL}/get-response`);
         const data = await res.json();
         setPossibleResponses(data.map((item: { text: string }) => item.text));
       } catch {
@@ -37,13 +37,17 @@ const Magic8Ball = () => {
   const handleAddResponse = async () => {
     if (!customResponse.trim()) return;
     try {
-      const res = await fetch(API_URL, {
+      const res = await fetch(`${API_URL}/add-response`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ text: customResponse }),
       });
 
       const data = await res.json();
+
+      if (data.error) {
+        throw new Error(data.error);
+      }
       setPossibleResponses([...possibleResponses, data.text]); 
       setCustomResponse("");
     } catch {

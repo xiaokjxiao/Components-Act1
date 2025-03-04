@@ -2,15 +2,25 @@ import express, { Request, Response, Application } from "express";
 import cors from "cors";
 import { PrismaClient } from "@prisma/client";
 
-const app: Application = express(); // Explicitly defining app as Application
+const app: Application = express(); 
 const prisma = new PrismaClient();
 
 app.use(cors());
-app.use(express.json()); // ✅ Ensures `req.body` is parsed properly
+app.use(express.json()); 
+
+app.get("/get-response", async (req: Request, res: Response): Promise<void> => {
+  try {
+    const responses = await prisma.magic8BallResponse.findMany();
+    res.json(responses);
+  } catch (error) {
+    console.error("Error getting responses:", error);
+    res.status(500).json({ error: "Failed to get responses" });
+  }
+});
 
 app.post("/add-response", async (req: Request, res: Response): Promise<void> => {
   try {
-    const { text } = req.body as { text: string }; // ✅ Explicitly type `req.body`
+    const { text } = req.body as { text: string }; 
     
     if (!text || typeof text !== "string") {
       res.status(400).json({ error: "Response text is required" });
