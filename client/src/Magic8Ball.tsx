@@ -73,6 +73,7 @@ const Magic8Ball = () => {
   
         <div className="flex flex-col space-y-4 w-full">
           <InputField
+            placeholder="Add your own response"
             label="Add your own response"
             id="customResponse"
             value={customResponse}
