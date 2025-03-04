@@ -1,5 +1,4 @@
 interface InputFieldProps {
-  label: string;
   id: string;
   type?: string;
   placeholder?: string;
@@ -7,11 +6,10 @@ interface InputFieldProps {
   onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
-const InputField: React.FC<InputFieldProps> = ({ label, id, type = "text", placeholder, value, onChange }) => {
+const InputField: React.FC<InputFieldProps> = ({id, type = "text", placeholder, value, onChange }) => {
     return (
       <div className="mb-6">
-        <label htmlFor={id} className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-          {label}
+        <label htmlFor={id} className="text-sm font-medium text-gray-900 dark:text-white">
         </label>
         <input
           type={type}

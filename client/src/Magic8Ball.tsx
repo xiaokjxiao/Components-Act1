@@ -34,6 +34,11 @@ const Magic8Ball = () => {
     setError(null);
   };
 
+  const handleReset = () => {
+    setResponse(null);
+    setError(null);
+  }
+
   const handleAddResponse = async () => {
     if (!customResponse.trim()) return;
     try {
@@ -65,25 +70,24 @@ const Magic8Ball = () => {
   
       <img src={giphy} alt="Magic 8 Ball" className="w-35 h-35" />
 
-      {error && <p className="text-red-500 text-center">{error}</p>}
-      {response && <p className="text-white text-xl text-center">{response}</p>}
+      {error && <p className="text-red-500 font-bold text-center">{error}</p>}
+      {response && <p className="text-white text-xl font-bold text-center">{response}</p>}
 
-      <div className="flex flex-col items-center space-y-6 w-full max-w-md px-4">
+      <div className="flex flex-col items-center w-full max-w-md px-4">
+        <div className="flex space-x-4">
         <ButtonComp onClick={handleAsk} label="Ask" />
-  
-        <div className="flex flex-col space-y-4 w-full">
+        <ButtonComp onClick={handleReset} label="Reset" />
+        </div>
+        <div className="flex flex-row mt-5">
           <InputField
             placeholder="Add your own response"
-            label="Add your own response"
             id="customResponse"
             value={customResponse}
             onChange={(e) => setCustomResponse(e.target.value)}
           />
-          <ButtonComp onClick={handleAddResponse} label="Add Response" />
         </div>
+        <ButtonComp onClick={handleAddResponse} label="Add Response" />
       </div>
-  
-      
     </div>
   );
 };
