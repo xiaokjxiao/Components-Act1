@@ -93,3 +93,83 @@
 // };
 
 // export default Magic8Ball;
+
+//----------------------------------- 2nd activity
+
+import { useState, useEffect } from "react";
+
+const API_URL = "http://localhost:5000";
+
+const DisplayComp = () => {
+    const [formData, setFormData] = useState({
+        firstName: "",
+        lastName: "",
+        groupName: "",
+        role: "",
+        expectedSalary: "",
+        expectedDateOfDefense: "",
+    });
+
+    const fetchFormData = async () => {
+        try {
+            const res = await fetch(`${API_URL}/api/get-employees`);
+            if (!res.ok) throw new Error("Failed to fetch");
+            const data = await res.json();
+            setFormData(data);
+        } catch (error) {
+            console.error("Failed to fetch form data:", error);
+        }
+    };
+
+
+    const deleteFormData = async () => {
+        try {
+            await fetch(`${API_URL}/api/delete-employees`, {
+                method: "DELETE",
+            });
+            setFormData({
+                firstName: "",
+                lastName: "",
+                groupName: "",
+                role: "",
+                expectedSalary: "",
+                expectedDateOfDefense: "",
+            });
+        } catch (error) {
+            console.error("Failed to delete form data:", error);
+        }
+    };
+
+    useEffect(() => {
+        fetchFormData();
+    }, []);
+
+    
+
+    return (
+        <div className='justify-center items-center'>
+            <div className="mt-6 p-4 bg-gray-100 rounded-xl shadow">
+                <h3 className="text-lg font-semibold">Candidate Details</h3>
+                <p><strong>First Name:</strong> {formData.firstName}</p>
+                <p><strong>Last Name:</strong> {formData.lastName}</p>
+                <p><strong>Group Name:</strong> {formData.groupName}</p>
+                <p><strong>Role:</strong> {formData.role}</p>
+                <p><strong>Expected Salary:</strong> {formData.expectedSalary}</p>
+                <p><strong>Expected Date of Defense:</strong> {formData.expectedDateOfDefense}</p>
+                <button 
+                    className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg" 
+                    onClick={() => setFormData({ ...formData, firstName: "Updated" })}>
+                    Edit
+                </button>
+                <button 
+                    className="mt-4 ml-2 px-4 py-2 bg-red-500 text-white rounded-lg" 
+                    onClick={deleteFormData}>
+                    Delete
+                </button>
+            </div>
+        </div>
+    );
+};
+
+export default DisplayComp;
+

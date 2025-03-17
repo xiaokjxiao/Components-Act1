@@ -1,69 +1,75 @@
-// import express, { Request, Response, Application } from "express";
-// import cors from "cors";
-// import { PrismaClient } from "@prisma/client";
+import express, { Request, Response, Application } from "express";
+import cors from "cors";
+import { PrismaClient } from "@prisma/client";
 
-// const app: Application = express(); 
-// const prisma = new PrismaClient();
-
-// app.use(cors());
-// app.use(express.json()); 
-
-// app.get("/get-response", async (req: Request, res: Response): Promise<void> => {
-//   try {
-//     const responses = await prisma.magic8BallResponse.findMany();
-//     res.json(responses);
-//   } catch (error) {
-//     console.error("Error getting responses:", error);
-//     res.status(500).json({ error: "Failed to get responses" });
-//   }
-// });
-
-// app.post("/add-response", async (req: Request, res: Response): Promise<void> => {
-//   try {
-//     const { text } = req.body as { text: string }; 
-    
-//     if (!text || typeof text !== "string") {
-//       res.status(400).json({ error: "Response text is required" });
-//       return;
-//     }
-
-//     const newResponse = await prisma.magic8BallResponse.create({
-//       data: { text },
-//     });
-
-//     res.status(201).json(newResponse);
-//   } catch (error) {
-//     console.error("Error adding response:", error);
-//     res.status(500).json({ error: "Failed to add response" });
-//   }
-// });
-
-// const PORT = 5000;
-// app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
-
-import express, { Request, Response } from 'express';
-import cors from 'cors';
-
-const app = express();
-const port = 4000;
+const app: Application = express();
+const prisma = new PrismaClient();
 
 app.use(cors());
+app.use(express.json());
 
-const employees = [
-  { id: 1, name: "Elmor John", role: "Tester", salary: 5000 },
-  { id: 2, name: "Nelissa Smith", role: "Developer", salary: 6000 },
-  { id: 3, name: "Cassandra Mondragon", role: "Manager", salary: 55000 },
-  { id: 4, name: "Alhena Sara", role: "Designer", salary: 45000 },
-  { id: 5, name: "Shayla Khini", role: "Developer", salary: 70000 },
-  { id: 6, name: "Regine Muscobado", role: "Backend", salary: 100000 },
-  { id: 7, name: "Vhea Mae", role: "Frontend", salary: 80000 },
-
-];
-
-app.get('/api/employees', (req: Request, res: Response) => {
-  res.json(employees);
+// Get all employees
+app.get("/api/get-employees", async (req: Request, res: Response): Promise<void> => {
+  try {
+    const employees = await prisma.form.findMany();
+    res.json(employees);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch employees" });
+  }
 });
 
-app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
+// Get a single employee by ID
+app.get("/api/get-employees/:id", async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const employee = await prisma.form.findUnique({ where: { id } });
+    if (!employee) {
+      res.status(404).json({ error: "Employee not found" });
+      return;
+    }
+    res.json(employee);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch employee" });
+  }
 });
+
+// Add a new employee
+app.post("/api/post-employees", async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { firstName, lastName, groupName, role, expectedSalary, expectedDateOfDefense } = req.body;
+    const newEmployee = await prisma.form.create({
+      data: { firstName, lastName, groupName, role, expectedSalary, expectedDateOfDefense }
+    });
+    res.status(201).json(newEmployee);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to add employee" });
+  }
+});
+
+// Update an employee
+app.put("/api/post-employees/:id", async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const updatedEmployee = await prisma.form.update({
+      where: { id },
+      data: req.body,
+    });
+    res.json(updatedEmployee);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to update employee" });
+  }
+});
+
+// Delete an employee
+app.delete("/api/delete-employees/:id", async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    await prisma.form.delete({ where: { id } });
+    res.json({ message: "Employee deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to delete employee" });
+  }
+});
+
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

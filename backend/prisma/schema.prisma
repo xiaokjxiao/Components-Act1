@@ -13,7 +13,17 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Magic8BallResponse {
-  id   Int    @id @default(autoincrement())
-  text String
+// model Magic8BallResponse {
+//   id   Int    @id @default(autoincrement())
+//   text String
+// }
+
+ model Form {
+  id                  String  @id @default(uuid())
+  firstName           String
+  lastName            String
+  groupName           String
+  role                String
+  expectedSalary      Float
+  expectedDateOfDefense DateTime
 }
