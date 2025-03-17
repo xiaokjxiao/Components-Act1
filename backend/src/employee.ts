@@ -16,15 +16,8 @@ employeeRoutes.post("/add", async (req, res) => {
       expectedDateOfDefense,
     } = req.body;
 
-    if (
-      !firstName ||
-      !lastName ||
-      !groupName ||
-      !role ||
-      !expectedSalary ||
-      !expectedDateOfDefense
-    ) {
-      res.status(400).json({ error: "All fields are required" });
+    if (!firstName || !lastName || !groupName || !role || !expectedSalary || !expectedDateOfDefense) {
+      return res.status(400).json({ error: "All fields are required" });
     }
 
     const newEmployee = await prisma.form.create({
@@ -33,7 +26,7 @@ employeeRoutes.post("/add", async (req, res) => {
         lastName,
         groupName,
         role,
-        expectedSalary,
+        expectedSalary: Number(expectedSalary), // Ensure it's a number
         expectedDateOfDefense: new Date(expectedDateOfDefense),
       },
     });
@@ -45,17 +38,22 @@ employeeRoutes.post("/add", async (req, res) => {
   }
 });
 
-employeeRoutes.get(
-  "/get",
-  async (req: Request, res: Response): Promise<void> => {
-    try {
-      const employees = await prisma.form.findMany();
-      res.json(employees);
-    } catch (error) {
-      res.status(500).json({ error: "Failed to fetch employees" });
-    }
+
+employeeRoutes.get("/get", async (req: Request, res: Response) => {
+  try {
+    console.log("Fetching employees...");
+
+    const employees = await prisma.form.findMany();
+    
+    console.log("Employees found:", employees);
+
+    res.json(employees);
+  } catch (error) {
+    console.error("Database error:", error);
+    res.status(500).json({ error: error.message });
   }
-);
+});
+
 
 employeeRoutes.patch("/update/:id", async (req: Request, res: Response) => {
     try {

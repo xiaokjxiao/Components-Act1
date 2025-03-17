@@ -1,122 +1,17 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
+import { useEmployee } from "../hooks/useEmployee";
 
 const EmployeeForm = () => {
-  interface Employee {
-    id: string;
-    firstName: string;
-    lastName: string;
-    groupName: string;
-    role: string;
-    expectedSalary: number;
-    expectedDateOfDefense: string;
-  }
-
-  const [employees, setEmployees] = useState<Employee[]>([]);
-  const [formData, setFormData] = useState({
-    id: "",
-    firstName: "",
-    lastName: "",
-    groupName: "",
-    role: "",
-    expectedSalary: 0,
-    expectedDateOfDefense: "",
-  });
-  const [isEditing, setIsEditing] = useState(false);
-
-  // Fetch all employees
-  useEffect(() => {
-    fetchEmployees();
-  }, []);
-
-  const fetchEmployees = async () => {
-    try {
-      const response = await fetch("/api/get-employees");
-      const data = await response.json();
-      setEmployees(data);
-    } catch (error) {
-      console.error("Failed to fetch employees:", error);
-    }
-  };
-
-  // Handle form input changes
-  const handleInputChange = (e: React.FormEvent<HTMLInputElement>) => {
-    const { name, value } = e.target as HTMLInputElement;
-    setFormData({
-      ...formData,
-      [name]: name === "expectedSalary" ? Number(value) : value,
-    });
-  };
-
-  // Add or update employee
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const url = isEditing
-      ? `/update/${formData.id}`
-      : "/add";
-  
-    try {
-      const response = await fetch(url, {
-        method: isEditing ? "PUT" : "POST", // Specify the correct HTTP method
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          ...formData,
-          expectedDateOfDefense: new Date(
-            formData.expectedDateOfDefense
-          ).toISOString(),
-        }),
-      });
-  
-      if (response.ok) {
-        const data = await response.json();
-        console.log(isEditing ? "Employee updated:" : "Employee added:", data);
-        fetchEmployees(); // Refresh the list
-        resetForm();
-      } else {
-        console.error("Failed to submit employee:", response.statusText);
-      }
-    } catch (error) {
-      console.error("Failed to submit employee:", error);
-    }
-  };
-  
-
-  // Edit employee
-  const handleEdit = (employee: Employee) => {
-    setFormData({
-      ...employee,
-      expectedSalary: employee.expectedSalary,
-    });
-    setIsEditing(true);
-  };
-
-  // Delete employee
-  const handleDelete = async (id: string) => {
-    try {
-      await fetch(`/api/delete-employees/${id}`, {
-        method: "DELETE",
-      });
-      console.log("Employee deleted successfully");
-      fetchEmployees(); // Refresh the list
-    } catch (error) {
-      console.error("Failed to delete employee:", error);
-    }
-  };
-
-  // Reset form
-  const resetForm = () => {
-    setFormData({
-      id: "",
-      firstName: "",
-      lastName: "",
-      groupName: "",
-      role: "",
-      expectedSalary: 0,
-      expectedDateOfDefense: "",
-    });
-    setIsEditing(false);
-  };
+  const {
+    employees,
+    formData,
+    isEditing,
+    handleInputChange,
+    handleSubmit,
+    handleEdit,
+    handleDelete,
+    resetForm,
+  } = useEmployee();
 
   return (
     <div className="p-8">
@@ -173,19 +68,19 @@ const EmployeeForm = () => {
           <input
             type="date"
             name="expectedDateOfDefense"
-            placeholder="Expected Date of Defense"
             value={formData.expectedDateOfDefense}
             onChange={handleInputChange}
             className="p-2 border rounded"
             required
           />
         </div>
-        <button
-          type="submit"
-          className="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
-        >
-          {isEditing ? "Update Employee" : "Add Employee"}
+        
+        {/* Submit Button */}
+        <button type="submit" className="mt-4 px-4 py-2 bg-blue-500 text-white rounded">
+          {isEditing ? "Save Changes" : "Add Employee"}
         </button>
+
+        {/* Cancel Button when Editing */}
         {isEditing && (
           <button
             type="button"
