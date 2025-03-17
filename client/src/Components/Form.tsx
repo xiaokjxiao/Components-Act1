@@ -51,11 +51,12 @@ const EmployeeForm = () => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const url = isEditing
-      ? `/api/update-employees/${formData.id}`
-      : "/api/post-employees";
-
+      ? `/update/${formData.id}`
+      : "/add";
+  
     try {
       const response = await fetch(url, {
+        method: isEditing ? "PUT" : "POST", // Specify the correct HTTP method
         headers: {
           "Content-Type": "application/json",
         },
@@ -66,6 +67,7 @@ const EmployeeForm = () => {
           ).toISOString(),
         }),
       });
+  
       if (response.ok) {
         const data = await response.json();
         console.log(isEditing ? "Employee updated:" : "Employee added:", data);
@@ -78,6 +80,7 @@ const EmployeeForm = () => {
       console.error("Failed to submit employee:", error);
     }
   };
+  
 
   // Edit employee
   const handleEdit = (employee: Employee) => {
