@@ -24,7 +24,7 @@ class TaskNotifier {
       this.notifiedTaskIds.delete(taskId);
     }, timeMs);
   }
-
+  
   checkForOverdueTasks(tasks: Task[]): void {
     const now = new Date();
     tasks.forEach((task) => {

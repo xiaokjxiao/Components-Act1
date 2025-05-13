@@ -5,6 +5,7 @@ import { taskNotifier } from "../patterns/TaskNotifier";
 import {
   useUpdateTask,
   useRemoveTask,
+  useCompleteTask,
 } from "../hooks/useTaskManager";
 import type { Task } from "../types/task";
 
@@ -19,6 +20,7 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, isLoading, error }) => {
   const [sortMethod, setSortMethod] = useState<"date" | "name" | "id">("date");
 
   // Only get operations, not tasks since they're coming from props
+  const { completeTask } = useCompleteTask();
   const { updateTask } = useUpdateTask();
   const { removeTask } = useRemoveTask();
 
@@ -59,27 +61,37 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, isLoading, error }) => {
   }, [removeTask, tasks]);
 
   const handleToggleComplete = useCallback(async (taskId: string) => {
-    try {
-      // Find task in local state
-      const taskIndex = localTasks.findIndex(t => t.id === taskId);
-      if (taskIndex === -1) return;
-      
-      // Optimistic UI update
-      const updatedLocalTasks = [...localTasks];
-      updatedLocalTasks[taskIndex] = {
-        ...updatedLocalTasks[taskIndex],
-        completed: !updatedLocalTasks[taskIndex].completed
-      };
-      setLocalTasks(updatedLocalTasks);
-      
-      // Actual API call
-      await updateTask(taskId, { completed: updatedLocalTasks[taskIndex].completed });
-    } catch (error) {
-      console.error("Error updating task:", error);
-      // Revert optimistic update if error occurs
-      setLocalTasks(tasks);
+  try {
+    // Find task in local state
+    const taskIndex = localTasks.findIndex(t => t.id === taskId);
+    if (taskIndex === -1) return;
+    
+    // Get current state and prepare update
+    const task = localTasks[taskIndex];
+    const newCompletedState = !task.completed;
+    
+    // Optimistic UI update
+    const updatedLocalTasks = [...localTasks];
+    updatedLocalTasks[taskIndex] = {
+      ...task,
+      completed: newCompletedState
+    };
+    setLocalTasks(updatedLocalTasks);
+    
+    // Use appropriate hook based on the new state
+    if (newCompletedState) {
+      // If marking as complete, use the specialized hook
+      await completeTask(taskId);
+    } else {
+      // If marking as incomplete, use the general update hook
+      await updateTask(taskId, { completed: false });
     }
-  }, [localTasks, updateTask, tasks]);
+  } catch (error) {
+    console.error("Error updating task:", error);
+    // Revert optimistic update if error occurs
+    setLocalTasks(tasks);
+  }
+}, [localTasks, completeTask, updateTask, tasks]);
 
   // Rest of your component remains largely the same...
   const filteredTasks = searchQuery
@@ -91,14 +103,21 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, isLoading, error }) => {
       )
     : localTasks;
 
+
+  // Sort tasks based on the selected method
+  
+  const sortedTasksByDate = TaskSortingStrategy.sortByDate(filteredTasks);
+  const sortedTasksByName = TaskSortingStrategy.sortByName(filteredTasks);
+  const sortedTasksById = TaskSortingStrategy.sortById(filteredTasks);
+
   const sortedTasks = (() => {
     switch (sortMethod) {
       case "date":
-        return TaskSortingStrategy.sortByDate(filteredTasks);
+        return sortedTasksByDate;
       case "name":
-        return TaskSortingStrategy.sortByName(filteredTasks);
+        return sortedTasksByName;
       case "id":
-        return TaskSortingStrategy.sortById(filteredTasks);
+        return sortedTasksById;
       default:
         return filteredTasks;
     }
@@ -182,6 +201,8 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, isLoading, error }) => {
               </div>
               <div className="flex justify-between p-3 bg-[#EDF1D6]/30 border-t border-[#EDF1D6]">
                 <button
+                  
+                  // Onclick it will mark the task as complete or incomplete
                   onClick={() => handleToggleComplete(task.id)}
                   className={`px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
                     task.completed
@@ -192,6 +213,7 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, isLoading, error }) => {
                   {task.completed ? "Completed" : "Mark Complete"}
                 </button>
                 <button
+                  // Onclick it will delete the task
                   onClick={() => handleDelete(task.id)}
                   className="px-4 py-2 rounded-md bg-white text-[#40513B] border border-[#40513B] text-sm font-medium hover:bg-[#40513B] hover:text-white transition-colors duration-200"
                 >

@@ -15,7 +15,8 @@ const TaskWithReminder: React.FC<TaskWithReminderProps> = ({ task }) => {
 
   return (
     <div className={`relative ${task.completed ? "opacity-75" : ""}`}>
-      {/* Reminder badge only shown for tasks with due dates */}
+
+      {/* reminder badge only shown for tasks with due dates */}
       {hasDueDate && (
         <div
           className={`reminder-badge absolute top-0 right-0 -mt-1 -mr-1 flex items-center justify-center w-8 h-8 ${
@@ -39,6 +40,7 @@ const TaskWithReminder: React.FC<TaskWithReminderProps> = ({ task }) => {
         </div>
       )}
 
+      {/* TaskFactory that creates UI components based on a type string e.g., "basic", "timed", "checklist" */}
       {task.type === "basic" && <BasicTask task={task} />}
       {task.type === "timed" && <TimedTask task={task} />}
       {task.type === "checklist" && <ChecklistTask task={task} />}

@@ -39,6 +39,7 @@ const App: React.FC = () => {
           <h1 className="text-4xl font-bold text-[#40513B]">Task Manager ng MAMAMO</h1>
         </div>
 
+        {/* notification when a task is overdue with it's task name, made a seperate component for task notifications*/}
         <Notification />
 
         <div className="mb-8 text-center">
@@ -69,7 +70,8 @@ const App: React.FC = () => {
           onClose={() => setShowModal(false)}
           title="Create New Task"
         >
-          <TaskForm onTaskAdded={handleTaskAdded} />
+          {/* Accepts handleTaskAdded prop from useTaskManager hooks that I created from TaskManager.ts where it handles all the methods */}
+          <TaskForm onTaskAdded={handleTaskAdded} /> 
         </Modal>
 
         <TaskList tasks={localTasks} isLoading={isLoading} error={error} />
