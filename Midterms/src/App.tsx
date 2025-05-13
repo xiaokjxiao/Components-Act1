@@ -1,50 +1,78 @@
-import React, { useState } from "react";
+"use client";
+
+import type React from "react";
+import { useState, useEffect } from "react";
 import TaskForm from "./components/TaskForm";
 import TaskList from "./components/TaskList";
 import Notification from "./components/Notification";
+import Modal from "./components/Modal";
+import { useGetAllTasks } from "./hooks/useTaskManager";
+import type { Task } from "./types/task";
 
 const App: React.FC = () => {
-  const [showForm, setShowForm] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  // Get tasks from the hook
+  const { tasks, isLoading, error, refetch } = useGetAllTasks();
+  // Create a local copy of tasks for immediate UI updates
+  const [localTasks, setLocalTasks] = useState<Task[]>([]);
+  
+  // Keep local tasks in sync with server tasks
+  useEffect(() => {
+    if (tasks) {
+      setLocalTasks(tasks);
+    }
+  }, [tasks]);
+  
+  const handleTaskAdded = (newTask: Task) => {
+    // Add the new task to local tasks immediately
+    setLocalTasks(prev => [newTask, ...prev]);
+    // Close the modal
+    setShowModal(false);
+    // Also refresh from server to ensure consistency
+    refetch();
+  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-[#EDF1D6]/30 py-10 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-700">
-            Task Manager
-          </h1>
-          <p className="mt-3 text-xl text-gray-600 max-w-2xl mx-auto">
-            A modern task management application with advanced design patterns
-          </p>
+        <div className="text-center mb-10">
+          <h1 className="text-4xl font-bold text-[#40513B]">Task Manager ng MAMAMO</h1>
         </div>
 
         <Notification />
 
         <div className="mb-8 text-center">
           <button
-            onClick={() => setShowForm(!showForm)}
-            className="bg-indigo-600 hover:bg-indigo-700 focus:ring-4 focus:ring-indigo-300 
-            text-white font-medium py-2.5 px-6 rounded-lg transition-all duration-200 
-            transform hover:scale-105 shadow-md flex items-center mx-auto"
+            onClick={() => setShowModal(true)}
+            className="bg-[#609966] hover:bg-[#40513B] text-white font-medium py-3 px-6 rounded-lg shadow-sm transition-all duration-200 flex items-center mx-auto"
           >
-            <span className="mr-2">{showForm ? "Hide Form" : "Add New Task"}</span>
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-              {showForm ? (
-                <path fillRule="evenodd" d="M5 10a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1z" clipRule="evenodd" />
-              ) : (
-                <path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd" />
-              )}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5 mr-2"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 4v16m8-8H4"
+              />
             </svg>
+            Add New Task
           </button>
         </div>
 
-        {showForm && (
-          <div className="mb-10 transition-all duration-300 animate-fadeIn">
-            <TaskForm onTaskAdded={() => setShowForm(false)} />
-          </div>
-        )}
+        <Modal
+          isOpen={showModal}
+          onClose={() => setShowModal(false)}
+          title="Create New Task"
+        >
+          <TaskForm onTaskAdded={handleTaskAdded} />
+        </Modal>
 
-        <TaskList />
+        <TaskList tasks={localTasks} isLoading={isLoading} error={error} />
       </div>
     </div>
   );
