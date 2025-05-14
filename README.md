@@ -1,5 +1,5 @@
-cd Midterms
-npm run dev
+- `cd Midterms`
+- `npm run dev`
 
 ENV FILE
 VITE_SUPABASE_URL=https://xgawmgeofiykcmlyotqh.supabase.co
