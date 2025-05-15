@@ -194,6 +194,7 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, isLoading, error }) => {
           {sortedTasks.map((task) => (
             <div
               key={task.id}
+              data-testid={`task-card-${task.id}`}
               className="bg-white rounded-lg shadow-md overflow-hidden border border-[#EDF1D6] hover:shadow-lg transition-shadow duration-300"
             >
               <div className="p-5 bg-gradient-to-r from-[#EDF1D6] to-[#EDF1D6]/50">
