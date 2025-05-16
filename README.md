@@ -1,5 +1,11 @@
+**To Open the Project**
 - `cd Midterms`
+- `npm i`
 - `npm run dev`
+
+  **For Opening Cypress**
+  - `cd Midterms`
+  - `npx cypress open`
 
 ENV FILE
 VITE_SUPABASE_URL=https://xgawmgeofiykcmlyotqh.supabase.co
